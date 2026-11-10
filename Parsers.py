@@ -92,7 +92,12 @@ def run_with_big_stack(fn, stack_mb: int = 256):
 
     old_limit = sys.getrecursionlimit()
     sys.setrecursionlimit(10_000_000)
-    threading.stack_size(stack_mb * 1024 * 1024)
+    for mb in (stack_mb, 128, 64, 32, 16):
+        try:
+            threading.stack_size(mb * 1024 * 1024)
+            break
+        except (ValueError, RuntimeError):
+            continue
     t = threading.Thread(target=target)
     t.start()
     t.join()
